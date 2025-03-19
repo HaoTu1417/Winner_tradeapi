@@ -1,0 +1,203 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="BCrypt.Net-Next">
+        <HintPath>..\tradeapi\BCrypt.Net-Next.dll</HintPath>
+      </Reference>
+      <Reference Include="BitMiracle.LibTiff.NET">
+        <HintPath>..\tradeapi\BitMiracle.LibTiff.NET.dll</HintPath>
+      </Reference>
+      <Reference Include="BouncyCastle.Crypto">
+        <HintPath>..\tradeapi\BouncyCastle.Crypto.dll</HintPath>
+      </Reference>
+      <Reference Include="BouncyCastle.Cryptography">
+        <HintPath>..\tradeapi\BouncyCastle.Cryptography.dll</HintPath>
+      </Reference>
+      <Reference Include="Dapper">
+        <HintPath>..\tradeapi\Dapper.dll</HintPath>
+      </Reference>
+      <Reference Include="Dapper.Transaction">
+        <HintPath>..\tradeapi\Dapper.Transaction.dll</HintPath>
+      </Reference>
+      <Reference Include="FluentValidation">
+        <HintPath>..\tradeapi\FluentValidation.dll</HintPath>
+      </Reference>
+      <Reference Include="Flurl">
+        <HintPath>..\tradeapi\Flurl.dll</HintPath>
+      </Reference>
+      <Reference Include="Flurl.Http">
+        <HintPath>..\tradeapi\Flurl.Http.dll</HintPath>
+      </Reference>
+      <Reference Include="Google.Protobuf">
+        <HintPath>..\tradeapi\Google.Protobuf.dll</HintPath>
+      </Reference>
+      <Reference Include="IronSoftware.Drawing.Common">
+        <HintPath>..\tradeapi\IronSoftware.Drawing.Common.dll</HintPath>
+      </Reference>
+      <Reference Include="K4os.Compression.LZ4">
+        <HintPath>..\tradeapi\K4os.Compression.LZ4.dll</HintPath>
+      </Reference>
+      <Reference Include="K4os.Compression.LZ4.Streams">
+        <HintPath>..\tradeapi\K4os.Compression.LZ4.Streams.dll</HintPath>
+      </Reference>
+      <Reference Include="K4os.Hash.xxHash">
+        <HintPath>..\tradeapi\K4os.Hash.xxHash.dll</HintPath>
+      </Reference>
+      <Reference Include="MaxMind.Db">
+        <HintPath>..\tradeapi\MaxMind.Db.dll</HintPath>
+      </Reference>
+      <Reference Include="MaxMind.GeoIP2">
+        <HintPath>..\tradeapi\MaxMind.GeoIP2.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.AspNetCore.OpenApi">
+        <HintPath>..\tradeapi\Microsoft.AspNetCore.OpenApi.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.Extensions.DependencyModel">
+        <HintPath>..\tradeapi\Microsoft.Extensions.DependencyModel.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+        <HintPath>..\tradeapi\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.Extensions.PlatformAbstractions">
+        <HintPath>..\tradeapi\Microsoft.Extensions.PlatformAbstractions.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.OpenApi">
+        <HintPath>..\tradeapi\Microsoft.OpenApi.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.Win32.SystemEvents">
+        <HintPath>..\tradeapi\Microsoft.Win32.SystemEvents.dll</HintPath>
+      </Reference>
+      <Reference Include="MySql.Data">
+        <HintPath>..\tradeapi\MySql.Data.dll</HintPath>
+      </Reference>
+      <Reference Include="MySqlConnector">
+        <HintPath>..\tradeapi\MySqlConnector.dll</HintPath>
+      </Reference>
+      <Reference Include="Newtonsoft.Json">
+        <HintPath>..\tradeapi\Newtonsoft.Json.dll</HintPath>
+      </Reference>
+      <Reference Include="NLog">
+        <HintPath>..\tradeapi\NLog.dll</HintPath>
+      </Reference>
+      <Reference Include="NLog.Database">
+        <HintPath>..\tradeapi\NLog.Database.dll</HintPath>
+      </Reference>
+      <Reference Include="NLog.Extensions.Logging">
+        <HintPath>..\tradeapi\NLog.Extensions.Logging.dll</HintPath>
+      </Reference>
+      <Reference Include="NLog.Web.AspNetCore">
+        <HintPath>..\tradeapi\NLog.Web.AspNetCore.dll</HintPath>
+      </Reference>
+      <Reference Include="Pipelines.Sockets.Unofficial">
+        <HintPath>..\tradeapi\Pipelines.Sockets.Unofficial.dll</HintPath>
+      </Reference>
+      <Reference Include="RestSharp">
+        <HintPath>..\tradeapi\RestSharp.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog">
+        <HintPath>..\tradeapi\Serilog.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog.AspNetCore">
+        <HintPath>..\tradeapi\Serilog.AspNetCore.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog.Extensions.Hosting">
+        <HintPath>..\tradeapi\Serilog.Extensions.Hosting.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog.Extensions.Logging">
+        <HintPath>..\tradeapi\Serilog.Extensions.Logging.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog.Formatting.Compact">
+        <HintPath>..\tradeapi\Serilog.Formatting.Compact.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog.Settings.Configuration">
+        <HintPath>..\tradeapi\Serilog.Settings.Configuration.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog.Sinks.Console">
+        <HintPath>..\tradeapi\Serilog.Sinks.Console.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog.Sinks.Debug">
+        <HintPath>..\tradeapi\Serilog.Sinks.Debug.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog.Sinks.File">
+        <HintPath>..\tradeapi\Serilog.Sinks.File.dll</HintPath>
+      </Reference>
+      <Reference Include="SixLabors.Fonts">
+        <HintPath>..\tradeapi\SixLabors.Fonts.dll</HintPath>
+      </Reference>
+      <Reference Include="SixLabors.ImageSharp">
+        <HintPath>..\tradeapi\SixLabors.ImageSharp.dll</HintPath>
+      </Reference>
+      <Reference Include="SixLabors.ImageSharp.Drawing">
+        <HintPath>..\tradeapi\SixLabors.ImageSharp.Drawing.dll</HintPath>
+      </Reference>
+      <Reference Include="StackExchange.Redis">
+        <HintPath>..\tradeapi\StackExchange.Redis.dll</HintPath>
+      </Reference>
+      <Reference Include="Swashbuckle.AspNetCore.Swagger">
+        <HintPath>..\tradeapi\Swashbuckle.AspNetCore.Swagger.dll</HintPath>
+      </Reference>
+      <Reference Include="Swashbuckle.AspNetCore.SwaggerGen">
+        <HintPath>..\tradeapi\Swashbuckle.AspNetCore.SwaggerGen.dll</HintPath>
+      </Reference>
+      <Reference Include="Swashbuckle.AspNetCore.SwaggerUI">
+        <HintPath>..\tradeapi\Swashbuckle.AspNetCore.SwaggerUI.dll</HintPath>
+      </Reference>
+      <Reference Include="System.Configuration.ConfigurationManager">
+        <HintPath>..\tradeapi\System.Configuration.ConfigurationManager.dll</HintPath>
+      </Reference>
+      <Reference Include="System.Drawing.Common">
+        <HintPath>..\tradeapi\System.Drawing.Common.dll</HintPath>
+      </Reference>
+      <Reference Include="System.Security.Cryptography.ProtectedData">
+        <HintPath>..\tradeapi\System.Security.Cryptography.ProtectedData.dll</HintPath>
+      </Reference>
+      <Reference Include="System.Security.Permissions">
+        <HintPath>..\tradeapi\System.Security.Permissions.dll</HintPath>
+      </Reference>
+      <Reference Include="System.Windows.Extensions">
+        <HintPath>..\tradeapi\System.Windows.Extensions.dll</HintPath>
+      </Reference>
+      <Reference Include="ThirdParty">
+        <HintPath>..\tradeapi\ThirdParty.dll</HintPath>
+      </Reference>
+      <Reference Include="tradeapi">
+        <HintPath>..\tradeapi\tradeapi.dll</HintPath>
+      </Reference>
+      <Reference Include="UniSdk">
+        <HintPath>..\tradeapi\UniSdk.dll</HintPath>
+      </Reference>
+      <Reference Include="ZstdSharp">
+        <HintPath>..\tradeapi\ZstdSharp.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Update="appsettings.Development.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Middleware\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="apidoc.xml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,76 @@
+# Ignore Visual Studio temporary files, build results, and
+# personal settings.
+
+## Ignore Visual Studio user-specific files
+.vscode/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Ignore build output
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.log
+*.cache
+*.csproj.user
+*.pidb
+*.mdb
+
+## Ignore Rider IDE files
+.idea/
+*.sln.iml
+
+## Ignore NuGet packages
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+project.lock.json
+project.assets.json
+PackageReferences.lock.json
+
+## Ignore logs, database, and other runtime files
+logs/
+*.log
+*.sql
+*.sqlite
+*.db
+*.mdf
+*.ldf
+
+## Ignore Environment and Secrets
+.env
+secrets.json
+appsettings.Development.json
+appsettings.Local.json
+
+## Ignore coverage files
+coverage/
+*.coverage
+*.coveragexml
+
+## Ignore Resharper files
+_ReSharper*/
+*.DotSettings.user
+
+## Ignore Docker files
+**/Dockerfile
+**/docker-compose.*
+**/obj/Dockerfile
+
+## Ignore compiled code
+*.dll
+*.exe
+*.out
+*.app
+
+## Ignore testing files
+TestResults/
+.trx
+coverage/
+*.coverage
