@@ -7,7 +7,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2"/>
+        <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
+        <PackageReference Include="Dapper" Version="2.1.66" />
+        <PackageReference Include="FluentValidation" Version="12.0.0-preview1" />
+        <PackageReference Include="IronSoftware.Drawing.Abstractions" Version="2025.2.6" />
+        <PackageReference Include="MaxMind.GeoIP2" Version="5.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
+        <PackageReference Include="MySqlConnector" Version="2.4.0" />
+        <PackageReference Include="NLog" Version="5.4.0" />
+        <PackageReference Include="NLog.Extensions.Logging" Version="5.4.0" />
+        <PackageReference Include="NLog.Web.AspNetCore" Version="5.4.0" />
+        <PackageReference Include="RestSharp" Version="112.1.1-alpha.0.4" />
+        <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
+        <PackageReference Include="Swashbuckle" Version="5.6.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.0.0" />
+        <PackageReference Include="UniSdk" Version="0.3.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -191,6 +205,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="logger\" />
       <Folder Include="Middleware\" />
     </ItemGroup>
 
