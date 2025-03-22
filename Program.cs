@@ -63,6 +63,32 @@ try
                 Title = "Trade API",
                 Version = "v1"
             });
+            
+            // Add the "token" header as a security scheme
+            options.AddSecurityDefinition("token", new OpenApiSecurityScheme
+            {
+                Description = "Custom token header",
+                Name = "token", // name of the header
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "token"
+            });
+            
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "token"
+                        }
+                    },
+                    new string[] {}
+                }
+            });
+
 
             if (File.Exists(xmlPath))
             {
