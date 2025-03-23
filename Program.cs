@@ -1,78 +1,133 @@
-// Decompiled with JetBrains decompiler
-// Type: Program
-// Assembly: tradeapi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: 2B1DD9E6-779B-413A-AAC1-D3429DA62127
-// Assembly location: C:\Users\VN6\Documents\Projects\Winner Dotnet\service\tradeapi\tradeapi.dll
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.OpenApi.Models;
 using NLog;
 using NLog.Web;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Data;
 using System.IO;
 using System.Runtime.InteropServices;
-using tradeapi.Middleware;
 using tradeapi.Utility;
+using tradeapi2.Middleware;
 
 #nullable enable
-Logger currentClassLogger = NLog.SetupBuilderExtensions.GetCurrentClassLogger(NLog.Web.SetupBuilderExtensions.LoadConfigurationFromAppSettings(LogManager.Setup()));
+
+// Configure NLog
+// var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+Logger logger = NLog.SetupBuilderExtensions.GetCurrentClassLogger(NLog.Web.SetupBuilderExtensions.LoadConfigurationFromAppSettings(LogManager.Setup()));
 try
 {
-  WebApplicationBuilder builder1 = WebApplication.CreateBuilder(args);
-  ConfigurationManager configuration = builder1.Configuration;
-  // Microsoft.Extensions.Logging.LoggingBuilderExtensions.ClearProviders(builder1.Logging);
-  AspNetExtensions.UseNLog((IHostBuilder) builder1.Host);
-  CorsServiceCollectionExtensions.AddCors(builder1.Services, (Action<CorsOptions>) (options => options.AddPolicy("AllowAll", (Action<CorsPolicyBuilder>) (builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()))));
-  DapperMysql.Init(ConfigurationExtensions.GetConnectionString((IConfiguration) configuration, "MySql") ?? throw new Exception("找不到MySql連線設定"));
-  StockDb.Init(ConfigurationExtensions.GetConnectionString((IConfiguration) configuration, "StockDb") ?? throw new Exception("找不到StockDb連線設定"));
-  ServiceCollectionServiceExtensions.AddSingleton<ApiKeyMiddleware>(builder1.Services);
-  MvcServiceCollectionExtensions.AddControllers(builder1.Services);
-  if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-  {
-    string filePath2 = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "apidoc.xml");
-    EndpointMetadataApiExplorerServiceCollectionExtensions.AddEndpointsApiExplorer(builder1.Services);
-    SwaggerGenServiceCollectionExtensions.AddSwaggerGen(builder1.Services, (Action<SwaggerGenOptions>) (options =>
+    logger.Info("Starting Trade API...");
+
+    // Create builder
+    var builder = WebApplication.CreateBuilder(args);
+    var configuration = builder.Configuration;
+
+    // ✅ Fix: Properly use NLog
+    builder.Host.UseNLog();
+
+    // ✅ Fix: Register CORS policy
+    builder.Services.AddCors(options =>
     {
-      string filePath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "apidoc.xml");
-      SwaggerGenOptionsExtensions.IncludeXmlComments(options, filePath);
-      SwaggerGenOptionsExtensions.SwaggerDoc(options, "v1", new OpenApiInfo()
-      {
-        Title = "Trade Api",
-        Version = "v1"
-      });
-    }));
-  }
-  WebApplication app = builder1.Build();
-  if (HostEnvironmentEnvExtensions.IsDevelopment((IHostEnvironment) app.Environment))
-  {
-    SwaggerBuilderExtensions.UseSwagger((IApplicationBuilder) app);
-    SwaggerUIBuilderExtensions.UseSwaggerUI((IApplicationBuilder) app);
-  }
-  CorsMiddlewareExtensions.UseCors((IApplicationBuilder) app, "AllowAll");
-  AuthAppBuilderExtensions.UseAuthentication((IApplicationBuilder) app);
-  AuthorizationAppBuilderExtensions.UseAuthorization((IApplicationBuilder) app);
-  UseMiddlewareExtensions.UseMiddleware<ApiKeyMiddleware>((IApplicationBuilder) app, Array.Empty<object>());
-  ControllerEndpointRouteBuilderExtensions.MapControllers((IEndpointRouteBuilder) app);
-  IDbConnection writeConntion = DapperMysql.GetWriteConntion();
-  app.Urls.Add("http://0.0.0.0:5278");
-  app.Run((string) null);
- 
+        options.AddPolicy("AllowAll", policy =>
+        {
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        });
+    });
+
+    // ✅ Fix: Initialize Database Connections
+    DapperMysql.Init(configuration.GetConnectionString("MySql") ?? throw new Exception("MySql connection not found"));
+    StockDb.Init(configuration.GetConnectionString("StockDb") ?? throw new Exception("StockDb connection not found"));
+
+    // ✅ Fix: Register Middleware & Controllers
+    builder.Services.AddSingleton<ApiKeyMiddleware>();
+    builder.Services.AddControllers(); // Correct way to register controllers
+
+    // ✅ Fix: Register Swagger (Only on Windows/macOS)
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+    {
+        string xmlFile = "apidoc.xml";
+        string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Trade API",
+                Version = "v1"
+            });
+            
+            // Add the "token" header as a security scheme
+            options.AddSecurityDefinition("token", new OpenApiSecurityScheme
+            {
+                Description = "Custom token header",
+                Name = "token", // name of the header
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "token"
+            });
+            
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "token"
+                        }
+                    },
+                    new string[] {}
+                }
+            });
+
+
+            if (File.Exists(xmlPath))
+            {
+                options.IncludeXmlComments(xmlPath);
+            }
+        });
+    }
+
+    var app = builder.Build();
+
+    // ✅ Fix: Enable Swagger UI in Development Mode
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Trade API v1");
+        });
+    }
+
+    // ✅ Fix: Enable Middleware & Routing
+    app.UseCors("AllowAll");
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.UseMiddleware<ApiKeyMiddleware>();
+    app.MapControllers();
+
+    // ✅ Fix: Define API listening URL properly
+    app.Urls.Add("http://0.0.0.0:5278");
+
+    // ✅ Fix: Run the application correctly
+    app.Run();
 }
 catch (Exception ex)
 {
-  currentClassLogger.Error(ex, "Stopped program because of exception");
-  throw;
+    logger.Error(ex, "Application stopped due to an exception.");
+    throw;
 }
 finally
 {
-  LogManager.Shutdown();
+    LogManager.Shutdown();
 }

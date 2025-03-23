@@ -1,0 +1,22 @@
+// Decompiled with JetBrains decompiler
+// Type: Models.Dto.CmsPopinfoDto
+// Assembly: tradeapi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: 2B1DD9E6-779B-413A-AAC1-D3429DA62127
+// Assembly location: /Users/tunghaotu/www/service/tradeapi/tradeapi.dll
+
+#nullable enable
+namespace Models.Dto
+{
+    public class CmsPopinfoDto
+    {
+        public int pk { get; set; }
+
+        public string lang { get; set; }
+
+        public string info { get; set; }
+
+        public int size { get; set; }
+
+        public bool enable { get; set; }
+    }
+}
