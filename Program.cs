@@ -50,7 +50,7 @@ try
     builder.Services.AddControllers(); // Correct way to register controllers
 
     // ✅ Fix: Register Swagger (Only on Windows/macOS)
-    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+    //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
     {
         string xmlFile = "apidoc.xml";
         string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -100,7 +100,7 @@ try
     var app = builder.Build();
 
     // ✅ Fix: Enable Swagger UI in Development Mode
-    if (app.Environment.IsDevelopment())
+    //if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
         app.UseSwaggerUI(c =>
@@ -117,7 +117,7 @@ try
     app.MapControllers();
 
     // ✅ Fix: Define API listening URL properly
-    app.Urls.Add("http://0.0.0.0:5278");
+    app.Urls.Add("http://0.0.0.0:5279");
 
     // ✅ Fix: Run the application correctly
     app.Run();
