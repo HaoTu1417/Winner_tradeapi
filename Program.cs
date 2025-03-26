@@ -14,9 +14,11 @@ using System.Data;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using tradeapi.Business;
 using tradeapi.Models.Member;
 using tradeapi.Utility;
 using tradeapi2.Middleware;
+using tradeApi2.Models;
 
 #nullable enable
 
@@ -65,6 +67,10 @@ try
             policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
         });
     });
+    builder.Services.Configure<EsmsConfig>(builder.Configuration.GetSection("EsmsConfig"));
+    // builder.Services.AddHttpClient<VerifyBiz>(); // HttpClient auto-injected
+    builder.Services.AddScoped<VerifyBiz>();
+
 
     // ✅ Fix: Initialize Database Connections
     DapperMysql.Init(configuration.GetConnectionString("MySql") ?? throw new Exception("MySql connection not found"));

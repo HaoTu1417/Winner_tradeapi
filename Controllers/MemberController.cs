@@ -38,6 +38,12 @@ namespace tradeapi.Controllers
   [ApiController]
   public class MemberController : ApiController
   {
+    private readonly VerifyBiz _verifyBiz;
+    public MemberController(VerifyBiz verifyBiz)
+    {
+      _verifyBiz = verifyBiz;
+    }
+
     private string GetDevice()
     {
       try
@@ -343,11 +349,32 @@ namespace tradeapi.Controllers
     [HttpPost("sendsmsverify")]
     public async Task<APIResponse> SendSMSVerify(SendphoneVerifyRequest req)
     {
+      // try
+      // {
+      //   new SendVerifyCodeSmsValidator().ValidateAndThrow<SendphoneVerifyRequest>(req);
+      //   int num = await MemberBiz.SendSMSVerity(req) ? 1 : 0;
+      //   return APIResponse.Ok((object) null, "傳送成功");
+      // }
+      // catch (AppException ex)
+      // {
+      //   LogLib.Warn("[MemberController][SendSMSVerify]" + ex.Message);
+      //   return APIResponse.Error(ex.GetStatus(), ex.GetMessage(req.lang));
+      // }
+      
+      /*
+       *  VerifyMailCodeValidator validator = new VerifyMailCodeValidator();
+                validator.ValidateAndThrow<VerifyMailCodeRequest>(req);
+                validator.CheckMember(req.email);
+                VerifyBiz.MailSendCode(req.email, VerifyBiz.SetMailVerityCode(req.email), req.lang);
+                return APIResponse<VerifyMailCodeResponse>.Ok(new VerifyMailCodeResponse());
+       */
+      
       try
       {
         new SendVerifyCodeSmsValidator().ValidateAndThrow<SendphoneVerifyRequest>(req);
-        int num = await MemberBiz.SendSMSVerity(req) ? 1 : 0;
-        return APIResponse.Ok((object) null, "傳送成功");
+        var code = VerifyBiz.GetVerifyCode();
+        int num = await _verifyBiz.SendSMSVerityESMS(req.PhoneNumber,VerifyBiz.SetPhoneVerityCode(req.PhoneNumber)) ? 1 : 0;
+        return APIResponse.Ok(null, "傳送成功");
       }
       catch (AppException ex)
       {

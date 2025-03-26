@@ -12,7 +12,7 @@ namespace tradeapi.Models.Member
         public string CountryCode { get; set; }
 
         public string PhoneNumber { get; set; }
-
+        
         public string lang { get; set; } = "EN";
     }
 }

@@ -11,8 +11,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.Extensions.Options;
 using tradeapi.Cache;
 using tradeapi.Common;
 using tradeapi.Libs;
@@ -20,6 +22,7 @@ using tradeapi.Models;
 using tradeapi.Models.Dto;
 using tradeapi.Models.Member;
 using tradeapi.Services;
+using tradeApi2.Models;
 using UniSdk;
 
 #nullable enable
@@ -27,6 +30,8 @@ namespace tradeapi.Business
 {
   public class MemberBiz
   {
+  
+    
     private static string CreatePassword(string password) => BCrypt.Net.BCrypt.HashPassword(password);
 
     public static void DbResetPassword(string newpasswd, int pk)
@@ -282,6 +287,8 @@ namespace tradeapi.Business
         throw new AppException(2416, uniResponse.Message);
       return true;
     }
+    
+  
 
     public static async Task<bool> VerifySMSCode(VerifyPhoneCodeRequest input)
     {
