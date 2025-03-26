@@ -6,8 +6,9 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using NLog.Config;
 using NLog.Extensions.Logging;
+using NLog.Web;
 
-namespace NLog.Web
+namespace NLog.Web2
 {
     /// <summary>
     /// Extension methods to setup LogFactory options

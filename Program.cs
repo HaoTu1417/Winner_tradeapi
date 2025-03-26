@@ -13,6 +13,8 @@ using System;
 using System.Data;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using tradeapi.Models.Member;
 using tradeapi.Utility;
 using tradeapi2.Middleware;
 
@@ -20,9 +22,27 @@ using tradeapi2.Middleware;
 
 // Configure NLog
 // var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
-Logger logger = NLog.SetupBuilderExtensions.GetCurrentClassLogger(NLog.Web.SetupBuilderExtensions.LoadConfigurationFromAppSettings(LogManager.Setup()));
+//Logger logger = NLog.SetupBuilderExtensions.GetCurrentClassLogger(NLog.Web.SetupBuilderExtensions.LoadConfigurationFromAppSettings(LogManager.Setup()));
+// var logger = NLog.LogManager.Setup()
+//     .LoadConfigurationFromAppSettings()
+//     .GetCurrentClassLogger();
+
+var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 try
 {
+    // RegisterRequest rr = new RegisterRequest();
+    // rr.email = "testdev05@gmail.com";
+    // rr.account = "testdev05";
+    // rr.country_pk = "VIETNAM";
+    // rr.invitation_code = "";
+    // rr.lang = "VN";
+    // rr.passwd = "a12345";
+    // rr.time_stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    // rr.verity_mail="2934";
+    // string output = DecryptTool.EncryptByAES(JsonSerializer.Serialize(rr));
+    // var time = DateTimeOffset.UtcNow.ToUnixTimeSeconds;
+    // Console.WriteLine(output);
+    
     logger.Info("Starting Trade API...");
 
     // Create builder
@@ -30,7 +50,11 @@ try
     var configuration = builder.Configuration;
 
     // ✅ Fix: Properly use NLog
+    // Clear default logging providers and use NLog
+    builder.Logging.ClearProviders();
     builder.Host.UseNLog();
+
+
 
     // ✅ Fix: Register CORS policy
     builder.Services.AddCors(options =>

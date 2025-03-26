@@ -1,9 +1,3 @@
-// Decompiled with JetBrains decompiler
-// Type: tradeapi.Models.StockQuote
-// Assembly: tradeapi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: 2B1DD9E6-779B-413A-AAC1-D3429DA62127
-// Assembly location: /Users/tunghaotu/www/service/tradeapi/tradeapi.dll
-
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
@@ -24,213 +18,158 @@ namespace tradeapi.Models
       this.stock_code = stock_code;
     }
 
+    private bool FieldExists(string field)
+    {
+      return _db.KeyExists(stock_code) && _db.HashExists(stock_code, field);
+    }
+
     public string stock_name
     {
-      get
-      {
-        return (string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (stock_name));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (stock_name), (RedisValue) value);
-      }
+      get => FieldExists(nameof(stock_name)) ? (string)_db.HashGet(stock_code, nameof(stock_name)) : string.Empty;
+      set => _db.HashSetAsync(stock_code, nameof(stock_name), value);
     }
 
     public string exchange
     {
-      get => (string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (exchange));
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (exchange), (RedisValue) value);
-      }
+      get => FieldExists(nameof(exchange)) ? (string)_db.HashGet(stock_code, nameof(exchange)) : string.Empty;
+      set => _db.HashSetAsync(stock_code, nameof(exchange), value);
     }
 
     public DateTime update_time
     {
       get
       {
-        return Convert.ToDateTime((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (update_time)));
+        if (FieldExists(nameof(update_time)) && DateTime.TryParse((string)_db.HashGet(stock_code, nameof(update_time)), out var result))
+          return result;
+        return DateTime.MinValue;
       }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (update_time), (RedisValue) value.ToString("yyyy-MM-ddTHH:mm:ss"));
-      }
+      set => _db.HashSetAsync(stock_code, nameof(update_time), value.ToString("yyyy-MM-ddTHH:mm:ss"));
     }
 
     public Decimal prev_day_c
     {
-      get
-      {
-        return Convert.ToDecimal((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (prev_day_c)));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (prev_day_c), (RedisValue) value.ToString());
-      }
+      get => FieldExists(nameof(prev_day_c)) ? Convert.ToDecimal((string)_db.HashGet(stock_code, nameof(prev_day_c))) : 0;
+      set => _db.HashSetAsync(stock_code, nameof(prev_day_c), value.ToString());
     }
 
     public Decimal prev_day_v
     {
-      get
-      {
-        return Convert.ToDecimal((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (prev_day_v)));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (prev_day_v), (RedisValue) value.ToString());
-      }
+      get => FieldExists(nameof(prev_day_v)) ? Convert.ToDecimal((string)_db.HashGet(stock_code, nameof(prev_day_v))) : 0;
+      set => _db.HashSetAsync(stock_code, nameof(prev_day_v), value.ToString());
     }
 
     public Decimal day_o
     {
-      get
-      {
-        return Convert.ToDecimal((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (day_o)));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (day_o), (RedisValue) value.ToString());
-      }
+      get => FieldExists(nameof(day_o)) ? Convert.ToDecimal((string)_db.HashGet(stock_code, nameof(day_o))) : 0;
+      set => _db.HashSetAsync(stock_code, nameof(day_o), value.ToString());
     }
 
     public Decimal day_h
     {
-      get
-      {
-        return Convert.ToDecimal((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (day_h)));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (day_h), (RedisValue) value.ToString());
-      }
+      get => FieldExists(nameof(day_h)) ? Convert.ToDecimal((string)_db.HashGet(stock_code, nameof(day_h))) : 0;
+      set => _db.HashSetAsync(stock_code, nameof(day_h), value.ToString());
     }
 
     public Decimal day_l
     {
-      get
-      {
-        return Convert.ToDecimal((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (day_l)));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (day_l), (RedisValue) value.ToString());
-      }
+      get => FieldExists(nameof(day_l)) ? Convert.ToDecimal((string)_db.HashGet(stock_code, nameof(day_l))) : 0;
+      set => _db.HashSetAsync(stock_code, nameof(day_l), value.ToString());
     }
 
     public Decimal day_c
     {
-      get
-      {
-        return Convert.ToDecimal((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (day_c)));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (day_c), (RedisValue) value.ToString());
-      }
+      get => FieldExists(nameof(day_c)) ? Convert.ToDecimal((string)_db.HashGet(stock_code, nameof(day_c))) : 0;
+      set => _db.HashSetAsync(stock_code, nameof(day_c), value.ToString());
     }
 
     public Decimal day_v
     {
-      get
-      {
-        return Convert.ToDecimal((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (day_v)));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (day_v), (RedisValue) value.ToString());
-      }
+      get => FieldExists(nameof(day_v)) ? Convert.ToDecimal((string)_db.HashGet(stock_code, nameof(day_v))) : 0;
+      set => _db.HashSetAsync(stock_code, nameof(day_v), value.ToString());
     }
 
     public Decimal[] bids
     {
       get
       {
-        return JsonConvert.DeserializeObject<Decimal[]>((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (bids)));
+        if (FieldExists(nameof(bids)))
+        {
+          var raw = (string)_db.HashGet(stock_code, nameof(bids));
+          return JsonConvert.DeserializeObject<Decimal[]>(raw) ?? Array.Empty<Decimal>();
+        }
+        return Array.Empty<Decimal>();
       }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (bids), (RedisValue) JsonConvert.SerializeObject((object) value));
-      }
+      set => _db.HashSetAsync(stock_code, nameof(bids), JsonConvert.SerializeObject(value));
     }
 
     public Decimal[] asks
     {
       get
       {
-        return JsonConvert.DeserializeObject<Decimal[]>((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (asks)));
+        if (FieldExists(nameof(asks)))
+        {
+          var raw = (string)_db.HashGet(stock_code, nameof(asks));
+          return JsonConvert.DeserializeObject<Decimal[]>(raw) ?? Array.Empty<Decimal>();
+        }
+        return Array.Empty<Decimal>();
       }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (asks), (RedisValue) JsonConvert.SerializeObject((object) value));
-      }
+      set => _db.HashSetAsync(stock_code, nameof(asks), JsonConvert.SerializeObject(value));
     }
 
     public int[] bid_sizes
     {
       get
       {
-        return JsonConvert.DeserializeObject<int[]>((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (bid_sizes)));
+        if (FieldExists(nameof(bid_sizes)))
+        {
+          var raw = (string)_db.HashGet(stock_code, nameof(bid_sizes));
+          return JsonConvert.DeserializeObject<int[]>(raw) ?? Array.Empty<int>();
+        }
+        return Array.Empty<int>();
       }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (bid_sizes), (RedisValue) JsonConvert.SerializeObject((object) value));
-      }
+      set => _db.HashSetAsync(stock_code, nameof(bid_sizes), JsonConvert.SerializeObject(value));
     }
 
     public int[] ask_sizes
     {
       get
       {
-        return JsonConvert.DeserializeObject<int[]>((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (ask_sizes)));
+        if (FieldExists(nameof(ask_sizes)))
+        {
+          var raw = (string)_db.HashGet(stock_code, nameof(ask_sizes));
+          return JsonConvert.DeserializeObject<int[]>(raw) ?? Array.Empty<int>();
+        }
+        return Array.Empty<int>();
       }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (ask_sizes), (RedisValue) JsonConvert.SerializeObject((object) value));
-      }
+      set => _db.HashSetAsync(stock_code, nameof(ask_sizes), JsonConvert.SerializeObject(value));
     }
 
     public Decimal price
     {
-      get
-      {
-        return Convert.ToDecimal((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (price)));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (price), (RedisValue) value.ToString());
-      }
+      get => FieldExists(nameof(price)) ? Convert.ToDecimal((string)_db.HashGet(stock_code, nameof(price))) : 0;
+      set => _db.HashSetAsync(stock_code, nameof(price), value.ToString());
     }
 
     public Decimal ceiling
     {
-      get
-      {
-        return Convert.ToDecimal((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (ceiling)));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (ceiling), (RedisValue) value.ToString());
-      }
+      get => FieldExists(nameof(ceiling)) ? Convert.ToDecimal((string)_db.HashGet(stock_code, nameof(ceiling))) : 0;
+      set => _db.HashSetAsync(stock_code, nameof(ceiling), value.ToString());
     }
 
     public Decimal floor
     {
-      get
-      {
-        return Convert.ToDecimal((string) this._db.HashGet((RedisKey) this.stock_code, (RedisValue) nameof (floor)));
-      }
-      set
-      {
-        this._db.HashSetAsync((RedisKey) this.stock_code, (RedisValue) nameof (floor), (RedisValue) value.ToString());
-      }
+      get => FieldExists(nameof(floor)) ? Convert.ToDecimal((string)_db.HashGet(stock_code, nameof(floor))) : 0;
+      set => _db.HashSetAsync(stock_code, nameof(floor), value.ToString());
     }
 
     public void Update(KeyValuePair<string, string>[] pairs)
     {
       HashEntry[] hashFields = new HashEntry[pairs.Length];
-      for (int index = 0; index < hashFields.Length; ++index)
-        hashFields[index] = new HashEntry((RedisValue) pairs[index].Key, (RedisValue) pairs[index].Value);
-      this._db.HashSetAsync((RedisKey) this.stock_code, hashFields);
+      for (int i = 0; i < pairs.Length; i++)
+      {
+        hashFields[i] = new HashEntry(pairs[i].Key, pairs[i].Value);
+      }
+      _db.HashSetAsync(stock_code, hashFields);
     }
   }
 }

@@ -44,10 +44,18 @@ namespace tradeapi.Validates
         throw new AppException(1270, "none_account");
       if (!memberDto.status)
         throw new AppException(1230, "user_permission_closed");
-      if (BCrypt.Net.BCrypt.Verify(input.newpasswd, memberDto.paywd))
-        throw new AppException(2383, "paypassword_cant_be_the_same");
-      if (!BCrypt.Net.BCrypt.Verify(input.password, memberDto.passwd))
-        throw new AppException(1240, "user_verify_failed");
+      // if(!memberDto.paywd)
+      //   throw new AppException(2384, "paypassword_cant_be_the_same");
+      if (!string.IsNullOrEmpty(memberDto.paywd))
+      {
+
+
+        if (BCrypt.Net.BCrypt.Verify(input.newpasswd, string.IsNullOrEmpty(memberDto.paywd) ? memberDto.paywd : ""))
+          throw new AppException(2383, "paypassword_cant_be_the_same");
+        if (!BCrypt.Net.BCrypt.Verify(input.password, memberDto.passwd))
+          throw new AppException(1240, "user_verify_failed");
+      }
+
       return memberDto.pk;
     }
   }
