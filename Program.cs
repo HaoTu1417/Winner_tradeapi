@@ -52,6 +52,7 @@ try
     // ✅ Fix: Properly use NLog
     // Clear default logging providers and use NLog
     builder.Logging.ClearProviders();
+    builder.Logging.AddConsole(); 
     builder.Host.UseNLog();
 
 
@@ -141,7 +142,7 @@ try
     app.MapControllers();
 
     // ✅ Fix: Define API listening URL properly
-    app.Urls.Add("http://0.0.0.0:5279");
+    app.Urls.Add("http://0.0.0.0:5280");
 
     // ✅ Fix: Run the application correctly
     app.Run();
