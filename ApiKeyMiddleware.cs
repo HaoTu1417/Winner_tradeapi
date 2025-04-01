@@ -65,6 +65,7 @@ namespace tradeapi2.Middleware
         "/member/vertrfycode",
         "/member/gettask",
         "/member/passwordapply",
+        "/member/passwordapplyphone",
         "/member/sendsmsverify",
         "/member/verifysmscode",
         "/member/checkphoneauth",

@@ -9,9 +9,9 @@ using tradeApi2.Models.Member;
 namespace tradeapi.Validates;
 
 
-public class PasswordApplyValidatorPhone: AbstractValidator<PasswordApplyPhoneRequest>
+public class PasswordApplyPhoneValidator: AbstractValidator<PasswordApplyPhoneRequest>
 {
-    public PasswordApplyValidatorPhone()
+    public PasswordApplyPhoneValidator()
     {
         this.RuleFor<long?>((Expression<Func<PasswordApplyPhoneRequest, long?>>) (x => x.time_stamp)).Custom<PasswordApplyPhoneRequest, long?>((Action<long?, ValidationContext<PasswordApplyPhoneRequest>>) ((time, context) =>
         {

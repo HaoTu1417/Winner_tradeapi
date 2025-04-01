@@ -149,12 +149,12 @@ try
     app.UseMiddleware<ApiKeyMiddleware>();
     app.MapControllers();
 
-    string s = DecryptTool.EncryptByAES(JsonSerializer.Serialize(new PasswordApplyPhoneRequest()
+    string s = DecryptTool.EncryptByAES(JsonSerializer.Serialize(new SignInRequest()
     {
-        phone="0982843210",
-        phone_verifyCode = "1234",
-        newpasswd="a12345",
-        time_stamp= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+       email = "tutunghao@gmail.com",
+       passwd = "a12345",
+       phoneNumber = "0982843210",
+       verify_phone = "1234"
     }));
     
     // ✅ Fix: Define API listening URL properly

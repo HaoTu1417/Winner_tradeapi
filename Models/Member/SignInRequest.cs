@@ -24,7 +24,10 @@ namespace tradeapi.Models.Member
             get => this._lang;
             set => this._lang = value.ToUpper();
         }
-
+        
         private string _lang { get; set; } = "EN";
+
+        public string phoneNumber;
+        public string verify_phone;
     }
 }

@@ -15,9 +15,9 @@ using tradeapi.Models.Member;
 #nullable enable
 namespace tradeapi.Validates
 {
-  public class SignInValidator : AbstractValidator<SignInRequest>
+  public class PresignInValidator : AbstractValidator<SignInRequest>
   {
-    public SignInValidator()
+    public PresignInValidator()
     {
       this.RuleFor<string>((Expression<Func<SignInRequest, string>>) (x => x.email)).Custom<SignInRequest, string>((Action<string, ValidationContext<SignInRequest>>) ((email, context) =>
       {
@@ -34,20 +34,6 @@ namespace tradeapi.Validates
           throw new AppException(1205, "password_needs_letter");
         if (!Regex.IsMatch(passwd, "^[A-Za-z0-9]*$"))
           throw new AppException(1206, "password_alpha_numeric");
-      }));
-      this.RuleFor<string>((Expression<Func<SignInRequest, string>>) (x => x.verify_phone)).Custom<SignInRequest, string>((Action<string, ValidationContext<SignInRequest>>) ((phone_verifyCode, context) =>
-      {
-        if (string.IsNullOrEmpty(phone_verifyCode))
-          throw new AppException(1215, "fill_sms_verification_code"); // New error code
-        if (!Regex.IsMatch(phone_verifyCode, "^\\d{4}$"))
-          throw new AppException(1216, "incorrect_sms_verification_code");
-      }));
-      this.RuleFor<string>((Expression<Func<SignInRequest, string>>) (x => x.phoneNumber)).Custom<SignInRequest, string>((Action<string, ValidationContext<SignInRequest>>) ((phone, context) =>
-      {
-        if (string.IsNullOrEmpty(phone))
-          throw new AppException(1227, "fill_phone"); // New error code
-        if (!Regex.IsMatch(phone, "^\\d{10}$"))
-          throw new AppException(1228, "incorrect_phone_format");
       }));
       this.RuleFor<string>((Expression<Func<SignInRequest, string>>) (x => x.lang)).Custom<SignInRequest, string>((Action<string, ValidationContext<SignInRequest>>) ((lang, context) =>
       {

@@ -192,43 +192,53 @@ namespace tradeapi.Controllers
     }
     
     [HttpPost("presignin")]
-    public APIResponse<PreSignInResponse> PreSignIn(ReqString req_str)
+    public APIResponse<SignInResponse> PreSignIn(ReqString req_str)
     {
-      // MemberLoginDto member_login = new MemberLoginDto()
-      // {
-      //   ip = "",
-      //   login_account = "",
-      //   device = "",
-      //   create_time = DateTime.UtcNow
-      // };
+      MemberLoginDto member_login = new MemberLoginDto()
+      {
+        ip = "",
+        login_account = "",
+        device = "",
+        create_time = DateTime.UtcNow
+      };
       try
       {
         SignInRequest signInRequest = JsonSerializer.Deserialize<SignInRequest>(DecryptTool.DecryptByAES(req_str.req_string));
         if (signInRequest != null && !string.IsNullOrEmpty(signInRequest.lang))
           this.lang = signInRequest.lang;
-        // member_login.ip = this.GetIp();
-        // member_login.login_account = signInRequest.email;
-        // member_login.device = this.GetDevice();
-        SignInValidator validator = new SignInValidator();
+        member_login.ip = this.GetIp();
+        member_login.login_account = signInRequest.email;
+        member_login.device = this.GetDevice();
+        PresignInValidator validator = new PresignInValidator();
         validator.ValidateAndThrow<SignInRequest>(signInRequest);
         this.LanguageAuth(signInRequest.lang);
         int num = validator.DbAuth(signInRequest);
+        // username và password đã đúng.
+        var logins = MemberLoginServices.GetLoginByDay(DateTime.Now, num);
+        
+        
         // member_login.member_fk = num;
-        // SignInResponse signInResponse = AuthBiz.Login(new TokenModel()
-        // {
-        //   member_fk = num,
-        //   ip = this.GetIp(),
-        //   
-        // });
-        PreSignInResponse signInResponse = new PreSignInResponse();
-        //MemberBiz.CreateLoginRecord(member_login, 1, "登入成功");
-        return APIResponse<PreSignInResponse>.Ok(signInResponse, "登录检查成功");
+        SignInResponse signInResponse = new SignInResponse();
+
+
+        if (logins != null && logins.Count > 0)
+        {
+          signInResponse = AuthBiz.Login(new TokenModel()
+          {
+            member_fk = num,
+            ip = this.GetIp(),
+          
+          });
+          MemberBiz.CreateLoginRecord(member_login, 1, "登入成功");
+        }
+        
+        return APIResponse<SignInResponse>.Ok(signInResponse, "登录检查成功");
       }
       catch (AppException ex)
       {
         //MemberBiz.CreateLoginRecord(member_login, 0, this.lang);
         LogLib.Warn("[MemberController][PreSignIn]" + ex.Message);
-        return APIResponse<PreSignInResponse>.Error(ex.GetStatus(), ex.GetMessage(this.lang));
+        return APIResponse<SignInResponse>.Error(ex.GetStatus(), ex.GetMessage(this.lang));
       }
     }
 
@@ -262,6 +272,7 @@ namespace tradeapi.Controllers
           ip = this.GetIp(),
           
         });
+        VerifyBiz.CheckPhoneVerifyCode(signInRequest.phoneNumber,signInRequest.verify_phone);
         MemberBiz.CreateLoginRecord(member_login, 1, "登入成功");
         return APIResponse<SignInResponse>.Ok(signInResponse, "登录成功");
       }
@@ -375,7 +386,7 @@ namespace tradeapi.Controllers
        var currentUser =  this.GetToken();
         PasswordApplyPhoneRequest instance = JsonSerializer.Deserialize<PasswordApplyPhoneRequest>(DecryptTool.DecryptByAES(req_str.req_string));
         this.lang = instance != null && !string.IsNullOrEmpty(instance.lang) ? instance.lang : throw new AppException(1090, "error_wrong_param");
-        new PasswordApplyValidatorPhone().ValidateAndThrow<PasswordApplyPhoneRequest>(instance);
+        new PasswordApplyPhoneValidator().ValidateAndThrow<PasswordApplyPhoneRequest>(instance);
        
         MemberDto memberDto = MemberServices.Find(currentUser.member_fk);
         //MemberResponse memberByPhone = MemberServices.GetByPhone(instance.phone);
