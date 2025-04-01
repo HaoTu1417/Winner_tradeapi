@@ -27,7 +27,7 @@ namespace tradeapi.Models.Member
         
         private string _lang { get; set; } = "EN";
 
-        public string phoneNumber;
-        public string verify_phone;
+        // public string phoneNumber;
+        // public string verify_phone;
     }
 }

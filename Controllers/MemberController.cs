@@ -272,7 +272,7 @@ namespace tradeapi.Controllers
           ip = this.GetIp(),
           
         });
-        VerifyBiz.CheckPhoneVerifyCode(signInRequest.phoneNumber,signInRequest.verify_phone);
+        //VerifyBiz.CheckPhoneVerifyCode(signInRequest.phoneNumber,signInRequest.verify_phone);
         MemberBiz.CreateLoginRecord(member_login, 1, "登入成功");
         return APIResponse<SignInResponse>.Ok(signInResponse, "登录成功");
       }

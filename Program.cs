@@ -153,8 +153,8 @@ try
     {
        email = "tutunghao@gmail.com",
        passwd = "a12345",
-       phoneNumber = "0982843210",
-       verify_phone = "1234"
+       // phoneNumber = "0982843210",
+       // verify_phone = "1234"
     }));
     
     // ✅ Fix: Define API listening URL properly
