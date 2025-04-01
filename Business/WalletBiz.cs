@@ -340,6 +340,47 @@ namespace tradeapi.Business
       return str;
     }
 
+    public static string RechargeApplyJPPay(TokenModel tokenModel, RechargeapplyRequest req, string ip)
+    {
+      DateTime utcNow = DateTime.UtcNow;
+      string str = WalletBiz.GenPayOrderId();
+      MemberDto member = MemberServices.GetMember(tokenModel.member_fk);
+      // tìm pk của tài khoản nhận tiền
+      int pkByAccountNumber = AdminBankService.FindPkByAccountNumber(req.AccountNumber);
+      string accountNumber = req.AccountNumber;
+      WalletRechargeDto recharge = new WalletRechargeDto()
+      {
+        type = req.RechargeMethod,
+        member_fk = tokenModel.member_fk,
+        admin_bank_fk = pkByAccountNumber,
+        order_no = str,
+        currency = req.Currency,
+        money = req.Amount,
+        exchange = req.ExchangeRate,
+        // wallet_amount = ExchangeHelper.Convert(req.Amount, """, ConfigLib.Get("wallet_currency")),
+        fee = 0M,
+        create_time = utcNow,
+        create_ip = ip,
+        line_bank = accountNumber,
+        form_name = member.account,
+        status = 0,
+        last_five = req.WalletLast5Digits
+      };
+      if (WalletLib.RechargeSubmit(recharge))
+      {
+        object[] objArray = new object[4]
+        {
+          (object) recharge.order_no,
+          (object) Tool.AddNumberSeparation(new Decimal?(recharge.money), recharge.currency),
+          (object) recharge.currency,
+          (object) recharge.exchange
+        };
+        SendMessageLib.Send(recharge.member_fk, 101, objArray);
+      }
+      return str;
+    }
+    
+    
     public static List<CollectInfoResponse> GetCollectInfo(string lang)
     {
       List<CollectInfoResponse> activeAccount = AdminBankService.FindActiveAccount();

@@ -17,6 +17,7 @@ using tradeapi.Models.Wallet;
 using tradeapi.Utility;
 using tradeapi.Validates;
 using tradeapi2.Common;
+using tradeApi2.Models.JYPay;
 
 #nullable enable
 namespace tradeapi.Controllers
@@ -371,6 +372,52 @@ namespace tradeapi.Controllers
       }
     }
 
+    [HttpPost("rechargeapplythirdparty")]
+    public APIResponse<RechargeapplyResponse> RechargeapplyThirdParty(ReqString req_str)
+    {
+      try
+      {
+        TokenModel token = this.GetToken();
+        RechargeapplyRequest rechargeapplyRequest = JsonSerializer.Deserialize<RechargeapplyRequest>(DecryptTool.DecryptByAES(req_str.req_string));
+        if (rechargeapplyRequest != null && !string.IsNullOrEmpty(rechargeapplyRequest.lang))
+          this.lang = rechargeapplyRequest.lang;
+        if (MemberServices.Find(token.member_fk).id_auth != 1 && Tool.ToBool(ConfigLib.Get("enable_id_auth")))
+          throw new AppException(1303, "no_id_auth_yet");
+        // new RechargeApplyValidator().ValidateAndThrow<RechargeapplyRequest>(rechargeapplyRequest);
+        new JYRechargeApplyValidator().ValidateAndThrow<RechargeapplyRequest>(rechargeapplyRequest);
+        /*
+         * b1: Tạo các giá trị cần thiết
+         * b2: Tạo một đối tượng WalletRechargeDto chứa đầy đủ thông tin của giao dịch nạp
+         * b3: lưu yêu cầu vào hệ thống v gửi thông báo tới người dùng
+         * b4: Trả về mã đơn hàng
+         */
+        string str = WalletBiz.RechargeApply(token, rechargeapplyRequest, this.GetIp());
+        
+        // Done dữ liệu cần phía third party như thế nào
+        // xử lý dữ liệu để ở đâu
+        // setup web hôk cho két quả
+        // xử lý kết quả nạp từ hook
+        
+        /*
+         * Cập nhật số lượng trong trang báo cáo
+         */
+        WalletBiz.UpdateRechargeApplyCount();
+        WalletBiz.UpdateRechargeNeedVerify();
+        
+        return APIResponse<RechargeapplyResponse>.Ok(new RechargeapplyResponse()
+        {
+          success = str != "",
+          order_no = str
+        });
+      }
+      catch (AppException ex)
+      {
+        LogLib.Warn("[WalletController][Rechargeapply]" + ex.Message);
+        return APIResponse<RechargeapplyResponse>.Error(ex.GetStatus(), ex.GetMessage(this.lang));
+      }
+    }
+
+    
     [HttpPost("getadmincardtype")]
     public APIResponse<List<GetBankCardTypeResponse>> GetAdminBankCardType(LangRequest req)
     {

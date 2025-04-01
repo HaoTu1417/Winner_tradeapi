@@ -14,9 +14,11 @@ using System.Data;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using tradeapi.Business;
 using tradeapi.Models.Member;
 using tradeapi.Utility;
 using tradeapi2.Middleware;
+using tradeApi2.Models.JYPay;
 
 #nullable enable
 
@@ -72,7 +74,7 @@ try
     // ✅ Fix: Register Middleware & Controllers
     builder.Services.AddSingleton<ApiKeyMiddleware>();
     builder.Services.AddControllers(); // Correct way to register controllers
-
+    builder.Services.AddHttpClient<WalletJYPayBiz>();
     // ✅ Fix: Register Swagger (Only on Windows/macOS)
     //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
     {
@@ -139,7 +141,15 @@ try
     app.UseAuthorization();
     app.UseMiddleware<ApiKeyMiddleware>();
     app.MapControllers();
-
+    WalletJYPayBiz test = new WalletJYPayBiz(new HttpClient());
+    test.GetPaymentUrlAsync(new JYPayAddRequest()
+    {
+        money = 50000.00f,
+        notifyurl = "http://localhost:5000",
+        code = "110",
+        applydate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        
+    });
     // ✅ Fix: Define API listening URL properly
     app.Urls.Add("http://0.0.0.0:5279");
 
