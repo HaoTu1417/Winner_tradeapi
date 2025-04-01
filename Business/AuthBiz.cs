@@ -56,6 +56,7 @@ namespace tradeapi.Business
       TokenCatch.SetToken(token2, tokenModel);
       MemberServices.SetToken(tokenModel.member_fk, token2, tokenModel.ip);
       MemberDto member = MemberServices.GetMember(tokenModel.member_fk);
+      bool isHasTodayLogin = false;
       return new SignInResponse()
       {
         Token = token2,
@@ -63,7 +64,8 @@ namespace tradeapi.Business
         Status = tokenModel.status,
         Market = tokenModel.market,
         is_test_account = member.is_test_account,
-        lang = member.lang
+        lang = member.lang,
+        isFirstLoginDaily = !isHasTodayLogin,
       };
     }
 

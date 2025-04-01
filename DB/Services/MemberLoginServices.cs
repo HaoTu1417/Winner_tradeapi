@@ -52,5 +52,30 @@ namespace DB.Services
                 throw new AppException(1030, "write_db_exception");
             }
         }
+
+        public static List<MemberLoginDto> GetLoginByDay(DateTime date, long memberFk)
+        {
+            string sql = @"SELECT * FROM `member_login` 
+                   WHERE DATE(`create_time`) = DATE(@date) 
+                   AND `member_fk` = @member_fk";
+            try
+            {
+                using (IDbConnection readConnection = DapperMysql.GetReadConnection())
+                {
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("date", date);
+                    parameters.Add("member_fk", memberFk);
+
+                    return readConnection.Query<MemberLoginDto>(sql, parameters).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogLib.Error("[MemberLoginServices][GetLoginByDay] " + ex.Message);
+                throw new AppException(1040, "read_db_exception");
+            }
+        }
+
+
     }
 }

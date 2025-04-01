@@ -20,5 +20,6 @@ namespace tradeapi.Models.Member
         public bool is_test_account { get; set; }
 
         public string lang { get; set; }
+        public bool isFirstLoginDaily { get; set; }
     }
 }

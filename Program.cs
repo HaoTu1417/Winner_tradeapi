@@ -14,11 +14,13 @@ using System.Data;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using DB.Services;
 using tradeapi.Business;
 using tradeapi.Models.Member;
 using tradeapi.Utility;
 using tradeapi2.Middleware;
 using tradeApi2.Models;
+using tradeApi2.Models.Member;
 
 #nullable enable
 
@@ -147,8 +149,16 @@ try
     app.UseMiddleware<ApiKeyMiddleware>();
     app.MapControllers();
 
+    string s = DecryptTool.EncryptByAES(JsonSerializer.Serialize(new PasswordApplyPhoneRequest()
+    {
+        phone="0982843210",
+        phone_verifyCode = "1234",
+        newpasswd="a12345",
+        time_stamp= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+    }));
+    
     // ✅ Fix: Define API listening URL properly
-    app.Urls.Add("http://0.0.0.0:5280");
+    app.Urls.Add("http://0.0.0.0:5279");
 
     // ✅ Fix: Run the application correctly
     app.Run();

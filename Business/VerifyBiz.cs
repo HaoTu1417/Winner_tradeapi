@@ -144,13 +144,15 @@ namespace tradeapi.Business
             }
         }
 
-        public static void CheckpohoneVerifyCode(string pohone, string code)
+        public static void CheckPhoneVerifyCode(string phone, string code)
         {
             CacheQuery.SelectDB(4);
-            if (!CacheQuery.KeyExists(pohone))
-                throw new AppException(1215, "verification_code_not_received");
-            if (CacheQuery.StringGet(pohone) != code)
+            if (!CacheQuery.KeyExists(phone))
+                throw new AppException(1223, "phone_verification_code_not_received");
+            if (CacheQuery.StringGet(phone) != code)
                 throw new AppException(1212, "incorrect_verification_code");
         }
+
+       
     }
 }

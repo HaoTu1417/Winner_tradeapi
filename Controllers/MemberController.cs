@@ -28,6 +28,7 @@ using tradeapi.Utility;
 using tradeapi.Validates;
 using tradeapi2.Common;
 using tradeapi2.Models.Member;
+using tradeApi2.Models.Member;
 using RegisterRequest = tradeapi.Models.Member.RegisterRequest;
 using ResetPasswordRequest = tradeapi.Models.Member.ResetPasswordRequest;
 
@@ -102,6 +103,34 @@ namespace tradeapi.Controllers
       }
     }
 
+    [HttpPost("registerphone")]
+    public async Task<APIResponse> Register1(ReqString req_str)
+    {
+      MemberController memberController = this;
+      try
+      {
+        RegisterRequest registerRequest = JsonSerializer.Deserialize<RegisterRequest>(DecryptTool.DecryptByAES(req_str.req_string));
+
+        if (registerRequest != null && !string.IsNullOrEmpty(registerRequest.lang))
+          memberController.lang = registerRequest.lang;
+        RegisterValidator validator = new RegisterValidator();
+        registerRequest.time_stamp = new long?(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+        validator.ValidateAndThrow<RegisterRequest>(registerRequest);
+        validator.DbAuth(registerRequest);
+        using (TransactionScope transactionScope = new TransactionScope())
+        {
+          MemberBiz.RegisterMember(registerRequest, memberController.GetIp());
+          transactionScope.Complete();
+          return APIResponse.Ok((object) null, "注册成功");
+        }
+      }
+      catch (AppException ex)
+      {
+        LogLib.Error((Exception) ex);
+        return APIResponse.Error(ex.GetStatus(), ex.GetMessage(memberController.lang));
+      }
+    }
+
     [HttpPost("register")]
     public async Task<APIResponse> Register(ReqString req_str)
     {
@@ -161,6 +190,48 @@ namespace tradeapi.Controllers
         return APIResponse<SignInResponse>.Error(ex.GetStatus(), ex.GetMessage(input.lang));
       }
     }
+    
+    [HttpPost("presignin")]
+    public APIResponse<PreSignInResponse> PreSignIn(ReqString req_str)
+    {
+      // MemberLoginDto member_login = new MemberLoginDto()
+      // {
+      //   ip = "",
+      //   login_account = "",
+      //   device = "",
+      //   create_time = DateTime.UtcNow
+      // };
+      try
+      {
+        SignInRequest signInRequest = JsonSerializer.Deserialize<SignInRequest>(DecryptTool.DecryptByAES(req_str.req_string));
+        if (signInRequest != null && !string.IsNullOrEmpty(signInRequest.lang))
+          this.lang = signInRequest.lang;
+        // member_login.ip = this.GetIp();
+        // member_login.login_account = signInRequest.email;
+        // member_login.device = this.GetDevice();
+        SignInValidator validator = new SignInValidator();
+        validator.ValidateAndThrow<SignInRequest>(signInRequest);
+        this.LanguageAuth(signInRequest.lang);
+        int num = validator.DbAuth(signInRequest);
+        // member_login.member_fk = num;
+        // SignInResponse signInResponse = AuthBiz.Login(new TokenModel()
+        // {
+        //   member_fk = num,
+        //   ip = this.GetIp(),
+        //   
+        // });
+        PreSignInResponse signInResponse = new PreSignInResponse();
+        //MemberBiz.CreateLoginRecord(member_login, 1, "登入成功");
+        return APIResponse<PreSignInResponse>.Ok(signInResponse, "登录检查成功");
+      }
+      catch (AppException ex)
+      {
+        //MemberBiz.CreateLoginRecord(member_login, 0, this.lang);
+        LogLib.Warn("[MemberController][PreSignIn]" + ex.Message);
+        return APIResponse<PreSignInResponse>.Error(ex.GetStatus(), ex.GetMessage(this.lang));
+      }
+    }
+
 
     [HttpPost("signin")]
     public APIResponse<SignInResponse> SignIn(ReqString req_str)
@@ -188,7 +259,8 @@ namespace tradeapi.Controllers
         SignInResponse signInResponse = AuthBiz.Login(new TokenModel()
         {
           member_fk = num,
-          ip = this.GetIp()
+          ip = this.GetIp(),
+          
         });
         MemberBiz.CreateLoginRecord(member_login, 1, "登入成功");
         return APIResponse<SignInResponse>.Ok(signInResponse, "登录成功");
@@ -294,6 +366,48 @@ namespace tradeapi.Controllers
       }
     }
 
+    
+    [HttpPost("passwordapplyphone")]
+    public APIResponse PasswordApplyPhone(ReqString req_str)
+    {
+      try
+      {
+       var currentUser =  this.GetToken();
+        PasswordApplyPhoneRequest instance = JsonSerializer.Deserialize<PasswordApplyPhoneRequest>(DecryptTool.DecryptByAES(req_str.req_string));
+        this.lang = instance != null && !string.IsNullOrEmpty(instance.lang) ? instance.lang : throw new AppException(1090, "error_wrong_param");
+        new PasswordApplyValidatorPhone().ValidateAndThrow<PasswordApplyPhoneRequest>(instance);
+       
+        MemberDto memberDto = MemberServices.Find(currentUser.member_fk);
+        //MemberResponse memberByPhone = MemberServices.GetByPhone(instance.phone);
+        // nếu user này chưa có sdt 
+        if (string.IsNullOrEmpty(memberDto.mobile))
+        {
+          throw new AppException(1225, "user_not_have_mobile");
+        }
+        
+        // nếu user này có sdt 
+        // có số điện thoại và nó khác với sdt input.
+        if (memberDto.mobile != instance.phone)
+        {
+          throw new AppException(1224, "error_wrong_phone_number");
+        }
+        // có số điện thoại nhưng số điện thoại nhập vào lại không đúng cái hiện tại
+        if (memberDto.mobile != instance.phone)
+        {
+          throw new AppException(1226, "phone_not_match");
+        }
+        
+        VerifyBiz.CheckPhoneVerifyCode(instance.phone, instance.phone_verifyCode);
+        MemberBiz.DbResetPassword(instance.newpasswd, memberDto.pk);
+        return APIResponse.Ok((object) null, "申请变更密码成功");
+      }
+      catch (AppException ex)
+      {
+        LogLib.Warn("[MemberController][PasswordApply]" + ex.Message);
+        return APIResponse.Error(ex.GetStatus(), ex.GetMessage(this.lang));
+      }
+    }
+    
     [HttpPost("passwordapply")]
     public APIResponse PasswordApply(ReqString req_str)
     {
@@ -346,29 +460,10 @@ namespace tradeapi.Controllers
       }
     }
 
+    // to send sms to phone
     [HttpPost("sendsmsverify")]
     public async Task<APIResponse> SendSMSVerify(SendphoneVerifyRequest req)
     {
-      // try
-      // {
-      //   new SendVerifyCodeSmsValidator().ValidateAndThrow<SendphoneVerifyRequest>(req);
-      //   int num = await MemberBiz.SendSMSVerity(req) ? 1 : 0;
-      //   return APIResponse.Ok((object) null, "傳送成功");
-      // }
-      // catch (AppException ex)
-      // {
-      //   LogLib.Warn("[MemberController][SendSMSVerify]" + ex.Message);
-      //   return APIResponse.Error(ex.GetStatus(), ex.GetMessage(req.lang));
-      // }
-      
-      /*
-       *  VerifyMailCodeValidator validator = new VerifyMailCodeValidator();
-                validator.ValidateAndThrow<VerifyMailCodeRequest>(req);
-                validator.CheckMember(req.email);
-                VerifyBiz.MailSendCode(req.email, VerifyBiz.SetMailVerityCode(req.email), req.lang);
-                return APIResponse<VerifyMailCodeResponse>.Ok(new VerifyMailCodeResponse());
-       */
-      
       try
       {
         new SendVerifyCodeSmsValidator().ValidateAndThrow<SendphoneVerifyRequest>(req);

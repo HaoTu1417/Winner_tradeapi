@@ -228,6 +228,8 @@ namespace DB.Services
         throw new AppException(1040, "read_db_exception");
       }
     }
+    
+
 
     public static bool CheckUsernameExists(string account)
     {
@@ -247,6 +249,24 @@ namespace DB.Services
       }
     }
 
+    
+    public static bool CheckPhoneExists(string mobile)
+    {
+      try
+      {
+        using (IDbConnection readConnection = DapperMysql.GetReadConnection())
+        {
+          string sql = "SELECT COUNT(*) FROM member WHERE mobile = @mobile AND is_del = 0";
+          var data = new{ mobile = mobile };
+          return readConnection.ExecuteScalar<int>(sql, (object) data) > 0;
+        }
+      }
+      catch (Exception ex)
+      {
+        LogLib.Error("[MemberService][CheckUsernameExists]" + ex.Message);
+        throw new AppException(1040, "read_db_exception");
+      }
+    }
     public static int CheckInvitationCodeExists(string invitation_code)
     {
       try
@@ -299,6 +319,28 @@ namespace DB.Services
       }
     }
 
+    public static MemberResponse GetByPhone(string phone)
+    {
+      try
+      {
+        using (IDbConnection readConnection = DapperMysql.GetReadConnection())
+        {
+          string sql = "SELECT `pk`, `email`, `passwd`, `status`, `lang` FROM member \n                    WHERE (mobile = @Phone) AND is_del = 0";
+          DynamicParameters parameters = DapperMysql.GetParameters((object) new
+          {
+            Phone = phone
+          });
+          return readConnection.QuerySingleOrDefault<MemberResponse>(sql, (object) parameters);
+        }
+      }
+      catch (Exception ex)
+      {
+        LogLib.Error("[MemberService][GetByPhone]" + ex.Message);
+        throw new AppException(1040, "read_db_exception");
+      }
+    }
+
+    
     public static int FindPkAfterInsert(MemberDto memberDto)
     {
       string sql = "INSERT INTO `member` \n                (`account`, `nickname`, `email`, `passwd`, `create_time`, `create_ip`, `last_login_time`, `last_login_ip`, `invitation_code`, `email_status`, `lang`, `country`,`mobile_country`,`mobile`) \n                VALUES \n                (@account, @nickname, @email, @passwd, @create_time, @create_ip, @last_login_time, @last_login_ip, @invitation_code, @email_status, @lang, @country, @mobile_country, @mobile);\n                select @@IDENTITY;";

@@ -9,7 +9,7 @@ namespace tradeapi.Models.Member
 {
     public class RegisterRequest : LangRequest
     {
-        private string _email = "";
+        private string? _email = "";
 
         public string account { get; set; }
 
@@ -17,7 +17,7 @@ namespace tradeapi.Models.Member
 
         public string email
         {
-            get => this._email;
+            get { return this._email; }
             set => this._email = value.ToLower();
         }
 
@@ -27,7 +27,10 @@ namespace tradeapi.Models.Member
 
         public string passwd { get; set; }
 
-        public string verity_mail { get; set; }
+        public string? verity_mail { get; set; }
+        
+        // An Otp will be sent though sms
+        public string verify_phone { get; set; }
 
         public string invitation_code { get; set; } = "";
     }
