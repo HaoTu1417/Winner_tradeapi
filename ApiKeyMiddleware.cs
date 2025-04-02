@@ -112,7 +112,9 @@ namespace tradeapi2.Middleware
         "/stock/historydaily",
         "/stock/lastday",
         "/stock/tradinginfo",
-        "/stock/quote"
+        "/stock/quote",
+        "/wallet/rechargeapplycallback",
+        "/wallet/abc"
       }.Exists((Predicate<string>) (t => t == path.ToLower()));
     }
   }

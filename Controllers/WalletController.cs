@@ -18,6 +18,7 @@ using tradeapi.Utility;
 using tradeapi.Validates;
 using tradeapi2.Common;
 using tradeApi2.Models.JYPay;
+using tradeApi2.Utility;
 
 #nullable enable
 namespace tradeapi.Controllers
@@ -26,6 +27,15 @@ namespace tradeapi.Controllers
   [ApiController]
   public class WalletController : ApiController
   {
+    private readonly WalletJYPayBiz _walletJYPayBiz;
+    public WalletController(WalletJYPayBiz walletJYPayBiz)
+    {
+      _walletJYPayBiz = walletJYPayBiz;
+    }
+
+    
+    
+    
     [HttpPost("wallet")]
     public APIResponse<WalletResponse> Wallet(LangRequest req)
     {
@@ -344,12 +354,19 @@ namespace tradeapi.Controllers
       }
     }
 
-    [HttpPost("rechargeapply")]
+    [HttpPost("rechargeapplyold")]
     public APIResponse<RechargeapplyResponse> Rechargeapply(ReqString req_str)
     {
       try
       {
-        TokenModel token = this.GetToken();
+        // TokenModel token = this.GetToken();
+        TokenModel token = new TokenModel()
+        {
+          sub_account = "VN56018631",
+          status=1,
+          member_fk = 12,
+          
+        };
         RechargeapplyRequest rechargeapplyRequest = JsonSerializer.Deserialize<RechargeapplyRequest>(DecryptTool.DecryptByAES(req_str.req_string));
         if (rechargeapplyRequest != null && !string.IsNullOrEmpty(rechargeapplyRequest.lang))
           this.lang = rechargeapplyRequest.lang;
@@ -371,9 +388,38 @@ namespace tradeapi.Controllers
         return APIResponse<RechargeapplyResponse>.Error(ex.GetStatus(), ex.GetMessage(this.lang));
       }
     }
+    
+    [HttpPost("rechargeapplycallback")]
+    public IActionResult HandleCallback([FromForm] JYDepositCallBak request)
+    {
+      // var parameters = new Dictionary<string, string>
+      // {
+      //   { "mchid", request.Mchid },
+      //   { "out_trade_no", request.Out_Trade_No },
+      //   { "amount", request.Amount },
+      //   { "transaction_id", request.Transaction_Id },
+      //   { "refCode", request.RefCode },
+      //   { "refMsg", request.RefMsg },
+      //   { "success_time", request.Success_Time }
+      // };
+      LogLib.Warn(JsonSerializer.Serialize(request));
+      // var calculatedSign = SignatureHelper.GenerateSignature(parameters, WalletJYPayBiz._key);
 
-    [HttpPost("rechargeapplythirdparty")]
-    public APIResponse<RechargeapplyResponse> RechargeapplyThirdParty(ReqString req_str)
+      // if (!string.Equals(calculatedSign, request.Sign, StringComparison.OrdinalIgnoreCase))
+      // {
+      //   // Signature mismatch
+      //   return BadRequest("Invalid signature");
+      // }
+
+      // Xử lý logic tùy theo refCode: 3 = thành công, 4/5 = thất bại
+      // Ví dụ cập nhật DB, đơn hàng...
+
+      // Phản hồi "success" để ngăn hệ thống gửi lại callback
+      return Content("success");
+    }
+
+    [HttpPost("rechargeapply")]
+    public async Task<APIResponse<RechargeapplyResponse>> RechargeapplyThirdParty(ReqString req_str)
     {
       try
       {
@@ -391,24 +437,38 @@ namespace tradeapi.Controllers
          * b3: lưu yêu cầu vào hệ thống v gửi thông báo tới người dùng
          * b4: Trả về mã đơn hàng
          */
-        string str = WalletBiz.RechargeApply(token, rechargeapplyRequest, this.GetIp());
+        string payorderId = WalletBiz.RechargeApply(token, rechargeapplyRequest, this.GetIp());
         
         // Done dữ liệu cần phía third party như thế nào
         // xử lý dữ liệu để ở đâu
         // setup web hôk cho két quả
         // xử lý kết quả nạp từ hook
-        
+        var (str,isSuccess) = await _walletJYPayBiz.GetPaymentUrlAsync(new JYPayAddRequest()
+        {
+          money = 50000,
+          notifyurl = "https://api-test.winnerfin.click/wallet/rechargeapplycallback",
+          InputCode = rechargeapplyRequest.RechargeMethod,
+          applydate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+          out_trade_no = payorderId,
+        });
         /*
          * Cập nhật số lượng trong trang báo cáo
          */
-        WalletBiz.UpdateRechargeApplyCount();
-        WalletBiz.UpdateRechargeNeedVerify();
         
-        return APIResponse<RechargeapplyResponse>.Ok(new RechargeapplyResponse()
+        if (isSuccess)
         {
-          success = str != "",
-          order_no = str
-        });
+          WalletBiz.UpdateRechargeApplyCount();
+          WalletBiz.UpdateRechargeNeedVerify();
+          return APIResponse<RechargeapplyResponse>.Ok(new RechargeapplyResponse()
+          {
+            success = isSuccess,
+            order_no = payorderId,
+            redirect_url = str
+          });
+        }
+        return APIResponse<RechargeapplyResponse>.Error(400,str);
+        
+      
       }
       catch (AppException ex)
       {

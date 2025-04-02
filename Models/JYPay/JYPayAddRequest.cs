@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace tradeApi2.Models.JYPay;
 
 public class JYPayAddRequest
@@ -8,11 +10,35 @@ public class JYPayAddRequest
     // mã số đơn hàng bên JY, phải là unique
     public string out_trade_no{ get; set; }
     // số tiền, chừa 2 số sau dấy phẩy 50000,00
-    public float money{ get; set; }
+    public Decimal money{ get; set; }
     // notifyurl 
     public string notifyurl{ get; set; }
     // loại hình thanh toán, ngân hàng, thẻ momo
     public string code{ get; set; }
+    // code từ fontend trả về
+    public string InputCode
+    {
+        set
+        {
+            switch (value)
+            {
+                case "JYBank":
+                    code = "110";
+                    break;
+                case "momo":
+                    code = "113";
+                    break;
+                default:
+                    code = "000"; // hoặc throw exception nếu cần
+                    break;
+            }
+        }
+        get
+        {
+            //TODO: viet tiep cho nay
+            return code;
+        }
+    }
     // thời gian yêu cầu theo format 2001-01-01 18:00:00
     public string applydate { get; set; }
 

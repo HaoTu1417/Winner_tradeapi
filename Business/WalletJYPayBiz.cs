@@ -14,7 +14,7 @@ namespace tradeapi.Business
         private   HttpClient _httpClient;
         
         private static readonly string _baseUrl= "https://shapi.jypay666.top";
-        private static readonly string _key = "cKhXSSMGp6EDKbI7IkFLOTnrIp6OxXp1Ex9aU2yyetP2594LD6UnhdUw2UUDUiAn";
+        public static readonly string _key = "cKhXSSMGp6EDKbI7IkFLOTnrIp6OxXp1Ex9aU2yyetP2594LD6UnhdUw2UUDUiAn";
         private static string getUrl(string url)=> $"{_baseUrl}/{url}";
 
         public WalletJYPayBiz(HttpClient httpClient)
@@ -23,8 +23,8 @@ namespace tradeapi.Business
         }
 
         private string tesstSign = "";
-        public  async Task<string?> GetPaymentUrlAsync(JYPayAddRequest request)
-        {
+        public  async Task<(string?,bool)> GetPaymentUrlAsync(JYPayAddRequest request)
+        {   
             try
             {
                 string fullUrl = getUrl("v1/dsapi/add2");
@@ -41,33 +41,24 @@ namespace tradeapi.Business
                 JsonElement root = doc.RootElement;
 
                 // Giả định response có dạng: { "success": true, "url": "https://payment.url" }
-                bool isSuccess = root.GetProperty("success").GetBoolean();
+                bool isSuccess = root.GetProperty("status").GetString().ToLower().Equals("success");
                 if (isSuccess)
                 {
-                    string url = root.GetProperty("url").GetString()!;
-                    return url;
+                    string url = root.GetProperty("pay_url").GetString()!;
+                    return (url,isSuccess);
                 }
-
-                return null;
+                //TODO: neeus vi ly do gi do that bai thi return loi=> bao user vaf ghi log
+                string error = root.GetProperty("msg").GetString()!;
+                return (error,isSuccess);
             }
-            catch
+            catch (Exception ex)
             {
                 // Log lỗi ở đây nếu cần
-                return null;
+                return (ex.GetBaseException().ToString(),false);
             }
         }
-        public  string ToFormUrlEncoded(JYPayAddRequest request)
+        private  string ToFormUrlEncoded(JYPayAddRequest request)
         {
-            //request.applydate = "2025-02-24 06:35:00";
-            ;
-            //request.code = "110";
-          // request.mchid = "6126";
-           // request.money = 50000.00f;
-            //request.notifyurl = "https://nofify.wfs.vn/callback?id=10001";
-           // request.out_trade_no = "ORD12351";
-            
-            ;
-             request.out_trade_no = GetOutTradeNo();
             var keyValues = new Dictionary<string, string>
             {
                 // { "attach", request.attach },
@@ -126,7 +117,7 @@ namespace tradeapi.Business
                           { "submitname", request.submitname },
          */
         
-        public  string GetSign(JYPayAddRequest request)
+        private  string GetSign(JYPayAddRequest request)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append($"applydate={request.applydate}&");
@@ -141,7 +132,7 @@ namespace tradeapi.Business
             return result;
         }
 
-        public static string GetOutTradeNo()
+        private  string GetOutTradeNo()
         {
             return $"ORD{DateTime.Now.Ticks}";
         }

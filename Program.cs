@@ -14,11 +14,13 @@ using System.Data;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using DB.Services;
 using tradeapi.Business;
 using tradeapi.Models.Member;
 using tradeapi.Utility;
 using tradeapi2.Middleware;
-using tradeApi2.Models.JYPay;
+using tradeApi2.Models;
+// using tradeApi2.Models.Member;
 
 #nullable enable
 
@@ -54,6 +56,7 @@ try
     // ✅ Fix: Properly use NLog
     // Clear default logging providers and use NLog
     builder.Logging.ClearProviders();
+    builder.Logging.AddConsole(); 
     builder.Host.UseNLog();
 
 
@@ -141,15 +144,15 @@ try
     app.UseAuthorization();
     app.UseMiddleware<ApiKeyMiddleware>();
     app.MapControllers();
-    WalletJYPayBiz test = new WalletJYPayBiz(new HttpClient());
-    test.GetPaymentUrlAsync(new JYPayAddRequest()
-    {
-        money = 50000.00f,
-        notifyurl = "http://localhost:5000",
-        code = "110",
-        applydate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-        
-    });
+
+    // string s = DecryptTool.EncryptByAES(JsonSerializer.Serialize(new PasswordApplyPhoneRequest()
+    // {
+    //     phone="0982843210",
+    //     phone_verifyCode = "1234",
+    //     newpasswd="a12345",
+    //     time_stamp= DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+    // }));
+    
     // ✅ Fix: Define API listening URL properly
     app.Urls.Add("http://0.0.0.0:5279");
 
