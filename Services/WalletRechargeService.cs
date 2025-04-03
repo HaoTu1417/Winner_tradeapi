@@ -102,6 +102,21 @@ namespace tradeapi.Services
         throw new AppException(1030, "write_db_exception");
       }
     }
+    
+    public static int UpdateRechargeStatus(string order_no)
+    {
+      string sql = "UPDATE `wallet_recharge` SET \n                `verify_time` = UTC_TIMESTAMP(),\n                `status` = 1    \n                 WHERE `order_no` = '" + order_no + "'";
+      try
+      {
+        using (IDbConnection writeConntion = DapperMysql.GetWriteConntion())
+          return writeConntion.Execute(sql);
+      }
+      catch (Exception ex)
+      {
+        LogLib.Error("[WalletRechargeService][AccecptRecharge]" + ex.Message);
+        throw new AppException(1030, "write_db_exception");
+      }
+    }
 
     public static int RejectRecharge(string order_no, string rejectResult)
     {

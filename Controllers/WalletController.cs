@@ -8,12 +8,14 @@ using DB.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using tradeapi.Business;
 using tradeapi.Common;
 using tradeapi.Libs;
 using tradeapi.Models;
 using tradeapi.Models.Wallet;
+using tradeapi.Services;
 using tradeapi.Utility;
 using tradeapi.Validates;
 using tradeapi2.Common;
@@ -392,30 +394,63 @@ namespace tradeapi.Controllers
     [HttpPost("rechargeapplycallback")]
     public IActionResult HandleCallback([FromForm] JYDepositCallBak request)
     {
-      // var parameters = new Dictionary<string, string>
-      // {
-      //   { "mchid", request.Mchid },
-      //   { "out_trade_no", request.Out_Trade_No },
-      //   { "amount", request.Amount },
-      //   { "transaction_id", request.Transaction_Id },
-      //   { "refCode", request.RefCode },
-      //   { "refMsg", request.RefMsg },
-      //   { "success_time", request.Success_Time }
-      // };
+      var parameters = new Dictionary<string, string>
+      {
+        { "amount", request.Amount },
+        { "mchid", request.Mchid },
+        { "out_trade_no", request.Out_Trade_No },
+        { "refCode", request.RefCode },
+        { "refMsg", request.RefMsg },
+        { "transaction_id", request.Transaction_Id },
+      };
       LogLib.Warn(JsonSerializer.Serialize(request));
-      // var calculatedSign = SignatureHelper.GenerateSignature(parameters, WalletJYPayBiz._key);
+      var calculatedSign = SignatureHelper.GenerateSignature(parameters, WalletJYPayBiz._key);
 
-      // if (!string.Equals(calculatedSign, request.Sign, StringComparison.OrdinalIgnoreCase))
-      // {
-      //   // Signature mismatch
-      //   return BadRequest("Invalid signature");
-      // }
+      
+      // tim kiem wallet recharge theo out_trade_no
+      WalletRechargeDto walletRechargeDto = WalletRechargeService.Find(request.Out_Trade_No);
+      // neu khong tim thay thi sao => khong co truong hop nay dc vi do dau kia tao xong moi request jypay
+      
+        
+      if (!string.Equals(calculatedSign, request.Sign, StringComparison.OrdinalIgnoreCase))
+      {
+        // Signature mismatch
+        // return BadRequest("Invalid signature");
+        // xu ly bao loi cho nguoi dung => vui long cung cap ma loi cho cskh.
+        WalletRechargeService.RejectRecharge(request.Out_Trade_No,
+          $"check sign failed {JsonSerializer.Serialize(parameters,new JsonSerializerOptions
+          {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+          })}");
+      }
 
-      // Xử lý logic tùy theo refCode: 3 = thành công, 4/5 = thất bại
-      // Ví dụ cập nhật DB, đơn hàng...
+      switch (request.RefCode)
+      {
+        // đã thanh toán
+        case "2":
+          WalletRechargeService.AccecptRecharge(request.Out_Trade_No);
+          break;
+        // chưa xử lý
+        case "1":
+        // đã huỷ
+        case "3":
+        // đã roll back
+        case "4":
+          string content = $"Pay failed {JsonSerializer.Serialize(parameters, new JsonSerializerOptions
+            {
+              Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            })
+          }";
+          WalletRechargeService.RejectRecharge(request.Out_Trade_No,content);
+          break;
+      }
+      
+      
+      
+
 
       // Phản hồi "success" để ngăn hệ thống gửi lại callback
-      return Content("success");
+        return Content("success");
     }
 
     [HttpPost("rechargeapply")]
